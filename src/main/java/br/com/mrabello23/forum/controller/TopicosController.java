@@ -16,6 +16,7 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/topicos") // mapeia path para toda classe
@@ -50,9 +51,14 @@ public class TopicosController {
     }
 
     @GetMapping("/{id}")
-    public DetalheTopicoDto listarPorid(@PathVariable Long id) {
-        // Caso nome param diferente do nome GetMapping, usar param da anotação @PathVariable("nm_param_GetMapping")
-        return new DetalheTopicoDto(topicoRepository.getById(id));
+    public ResponseEntity<DetalheTopicoDto> listarPorid(@PathVariable Long id) { // Caso nome param diferente do nome GetMapping, usar param da anotação @PathVariable("nm_param_GetMapping")
+        Optional<Topico> topico = topicoRepository.findById(id);
+
+        if(topico.isPresent()) {
+            return ResponseEntity.ok(new DetalheTopicoDto(topico.get()));
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
@@ -62,14 +68,26 @@ public class TopicosController {
             @PathVariable Long id,
             @RequestBody @Valid AtualizaTopicoForm form
     ) {
-        Topico topico = form.atualizar(id, topicoRepository);
-        return ResponseEntity.ok(new TopicoDto(topico));
+        Optional<Topico> topico = topicoRepository.findById(id);
+
+        if(topico.isPresent()) {
+            Topico topicoAtualizar = form.atualizar(id, topico.get());
+            return ResponseEntity.ok(new TopicoDto(topicoAtualizar));
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<?> remover(@PathVariable Long id) {
-        topicoRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        Optional<Topico> topico = topicoRepository.findById(id);
+
+        if(topico.isPresent()) {
+            topicoRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.notFound().build();
     }
 }
