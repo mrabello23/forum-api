@@ -8,6 +8,8 @@ import br.com.mrabello23.forum.model.Topico;
 import br.com.mrabello23.forum.repository.CursoRepository;
 import br.com.mrabello23.forum.repository.TopicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -31,8 +33,9 @@ public class TopicosController {
     private CursoRepository cursoRepository;
 
     @GetMapping
+    @Cacheable(value="listarCache")
     public Page<TopicoDto> listar(
-            @RequestParam(required = false) String nomeCurso,
+            @RequestParam(required=false) String nomeCurso,
             @PageableDefault(page=0, size=10, sort="id") Pageable paginacao
     ) {
         // Paginação manual
@@ -47,6 +50,7 @@ public class TopicosController {
 
     @PostMapping
     @Transactional
+    @CacheEvict(value={"listarCache","listarPorIdCache"}, allEntries=true)
     public ResponseEntity<TopicoDto> cadastrar(
             @RequestBody @Valid TopicoForm form,
             UriComponentsBuilder uriComponentsBuilder
@@ -58,8 +62,9 @@ public class TopicosController {
         return ResponseEntity.created(uri).body(new TopicoDto(topico));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<DetalheTopicoDto> listarPorid(@PathVariable Long id) { // Caso nome param diferente do nome GetMapping, usar param da anotação @PathVariable("nm_param_GetMapping")
+    @GetMapping("/{id}") // Caso nome param diferente do nome GetMapping, usar param da anotação @PathVariable("nm_param_GetMapping")
+    @Cacheable(value="listarPorIdCache")
+    public ResponseEntity<DetalheTopicoDto> listarPorId(@PathVariable Long id) {
         Optional<Topico> topico = topicoRepository.findById(id);
 
         if(topico.isPresent()) {
@@ -71,6 +76,7 @@ public class TopicosController {
 
     @PutMapping("/{id}")
     @Transactional
+    @CacheEvict(value={"listarCache","listarPorIdCache"}, allEntries=true)
     public ResponseEntity<TopicoDto> atualizar(
             // Caso nome param diferente do nome PutMapping, usar param da anotação @PathVariable("nm_param_PutMapping")
             @PathVariable Long id,
@@ -88,6 +94,7 @@ public class TopicosController {
 
     @DeleteMapping("/{id}")
     @Transactional
+    @CacheEvict(value={"listarCache","listarPorIdCache"}, allEntries=true)
     public ResponseEntity<?> remover(@PathVariable Long id) {
         Optional<Topico> topico = topicoRepository.findById(id);
 
