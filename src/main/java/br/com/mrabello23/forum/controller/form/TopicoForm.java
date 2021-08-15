@@ -2,10 +2,18 @@ package br.com.mrabello23.forum.controller.form;
 
 import br.com.mrabello23.forum.model.Topico;
 import br.com.mrabello23.forum.repository.CursoRepository;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 public class TopicoForm {
+    @NotNull
+    @NotEmpty @Length(min=5)
     private String titulo;
+    @NotNull @NotEmpty @Length(min=5)
     private String mensagem;
+    @NotNull @NotEmpty @Length(min=3)
     private String nomeCurso;
 
     public String getTitulo() {
