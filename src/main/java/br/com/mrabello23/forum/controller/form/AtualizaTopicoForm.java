@@ -1,20 +1,18 @@
 package br.com.mrabello23.forum.controller.form;
 
 import br.com.mrabello23.forum.model.Topico;
-import br.com.mrabello23.forum.repository.CursoRepository;
+import br.com.mrabello23.forum.repository.TopicoRepository;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-public class TopicoForm {
-    @NotNull
-    @NotEmpty @Length(min=5) // bean validation
+public class AtualizaTopicoForm {
+    @NotNull @NotEmpty @Length(min=5) // bean validation
     private String titulo;
+
     @NotNull @NotEmpty @Length(min=5) // bean validation
     private String mensagem;
-    @NotNull @NotEmpty @Length(min=3) // bean validation
-    private String nomeCurso;
 
     public String getTitulo() {
         return titulo;
@@ -32,15 +30,12 @@ public class TopicoForm {
         this.mensagem = mensagem;
     }
 
-    public String getNomeCurso() {
-        return nomeCurso;
-    }
+    public Topico atualizar(Long id, TopicoRepository topicoRepository) {
+        Topico topico = topicoRepository.getById(id);
 
-    public void setNomeCurso(String nomeCurso) {
-        this.nomeCurso = nomeCurso;
-    }
+        topico.setTitulo(this.titulo);
+        topico.setMensagem(this.mensagem);
 
-    public Topico converter(CursoRepository cursoRepository) {
-        return new Topico(titulo, mensagem, cursoRepository.findByNome(nomeCurso));
+        return topico;
     }
 }
