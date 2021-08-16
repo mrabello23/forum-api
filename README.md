@@ -1,6 +1,8 @@
 # Forum API
 Forum Rest API with Spring boot
 
+**Api docs (Swagger): /swagger-ui/index.html**
+
 ## Autenticar
 - Method: POST
 - Uri: /auth
